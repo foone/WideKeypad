@@ -42,6 +42,8 @@ typedef enum{ IDLE, PRESSED, HOLD, RELEASED } KeyState;
 typedef uint16_t keypad_type;
 
 const keypad_type NO_KEY = 0xFFFF;
+const keypad_type UNKNOWN_KEY_MASK = 0xFF00;
+const keypad_type UNKNOWN_KEY = 0xFE00;
 
 class Key {
 public:

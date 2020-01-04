@@ -29,7 +29,7 @@
 || #
 ||
 */
-#include <Keypad.h>
+#include <WideKeypad.h>
 
 // <<constructor>> Allows custom keymap, pin configuration, and keypad sizes.
 Keypad::Keypad(keypad_type *userKeymap, byte *row, byte *col, byte numRows, byte numCols) {
@@ -58,7 +58,7 @@ keypad_type Keypad::getKey() {
 	single_key = true;
 
 	if (getKeys() && key[0].stateChanged && (key[0].kstate==PRESSED))
-		return key[0].kchar;
+		return key[0].kcode;
 	
 	single_key = false;
 
@@ -117,7 +117,7 @@ bool Keypad::updateList() {
 		for (byte c=0; c<sizeKpd.columns; c++) {
 			boolean button = bitRead(bitMap[r],c);
 			keypad_type keyCode = keymap[r * sizeKpd.columns + c];
-			int keyCode = r * sizeKpd.columns + c;
+			//int keyIndex = r * sizeKpd.columns + c;
 			int idx = findInList (keyCode);
 			// Key is already on the list so set its next state.
 			if (idx > -1)	{

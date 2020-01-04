@@ -1,9 +1,9 @@
 /*
 ||
 || @file Keypad.h
-|| @version 3.1
-|| @author Mark Stanley, Alexander Brevig
-|| @contact mstanley@technologist.com, alexanderbrevig@gmail.com
+|| @version 4.0
+|| @author Mark Stanley, Alexander Brevig, , Foone Turing
+|| @contact mstanley@technologist.com, alexanderbrevig@gmail.com, fooneturing@gmail.com
 ||
 || @description
 || | This library provides a simple interface for using matrix
@@ -68,14 +68,14 @@ typedef struct {
 
 #define LIST_MAX 10		// Max number of keys on the active list.
 #define MAPSIZE 10		// MAPSIZE is the number of rows (times 16 columns)
-#define makeKeymap(x) ((char*)x)
+#define makeKeymap(x) ((keypad_type*)x)
 
 
 //class Keypad : public Key, public HAL_obj {
 class Keypad : public Key {
 public:
 
-	Keypad(char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
+	Keypad(keypad_type *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
 
 	virtual void pin_mode(byte pinNum, byte mode) { pinMode(pinNum, mode); }
 	virtual void pin_write(byte pinNum, boolean level) { digitalWrite(pinNum, level); }
@@ -85,23 +85,22 @@ public:
 	Key key[LIST_MAX];
 	unsigned long holdTimer;
 
-	char getKey();
+	keypad_type getKey();
 	bool getKeys();
 	KeyState getState();
-	void begin(char *userKeymap);
-	bool isPressed(char keyChar);
+	void begin(keypad_type *userKeymap);
+	bool isPressed(keypad_type keyCode);
 	void setDebounceTime(uint);
 	void setHoldTime(uint);
-	void addEventListener(void (*listener)(char));
-	int findInList(char keyChar);
-	int findInList(int keyCode);
-	char waitForKey();
+	void addEventListener(void (*listener)(keypad_type));
+	int findInList(keypad_type keyChar);
+	keypad_type waitForKey();
 	bool keyStateChanged();
 	byte numKeys();
 
 private:
 	unsigned long startTime;
-	char *keymap;
+	keypad_type *keymap;
     byte *rowPins;
     byte *columnPins;
 	KeypadSize sizeKpd;
@@ -113,13 +112,14 @@ private:
 	bool updateList();
 	void nextKeyState(byte n, boolean button);
 	void transitionTo(byte n, KeyState nextState);
-	void (*keypadEventListener)(char);
+	void (*keypadEventListener)(keypad_type);
 };
 
 #endif
 
 /*
 || @changelog
+|| | 4.0 2020-01-04 - Foone Turing     : Switch to a 16bit integer for kchar (now kcode)
 || | 3.1 2013-01-15 - Mark Stanley     : Fixed missing RELEASED & IDLE status when using a single key.
 || | 3.0 2012-07-12 - Mark Stanley     : Made library multi-keypress by default. (Backwards compatible)
 || | 3.0 2012-07-12 - Mark Stanley     : Modified pin functions to support Keypad_I2C

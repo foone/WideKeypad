@@ -1,9 +1,9 @@
 /*
 ||
-|| @file Key.h
-|| @version 1.0
-|| @author Mark Stanley
-|| @contact mstanley@technologist.com
+|| @file Keypad.h
+|| @version 4.0
+|| @author Mark Stanley, Alexander Brevig, , Foone Turing
+|| @contact mstanley@technologist.com, alexanderbrevig@gmail.com, fooneturing@gmail.com
 ||
 || @description
 || | Key class provides an abstract definition of a key or button
@@ -39,21 +39,21 @@
 
 typedef unsigned int uint;
 typedef enum{ IDLE, PRESSED, HOLD, RELEASED } KeyState;
+typedef uint16_t keypad_type;
 
-const char NO_KEY = '\0';
+const keypad_type NO_KEY = 0xFFFF;
 
 class Key {
 public:
 	// members
-	char kchar;
-	int kcode;
+	keypad_type kcode;
 	KeyState kstate;
 	boolean stateChanged;
 
 	// methods
 	Key();
-	Key(char userKeyChar);
-	void key_update(char userKeyChar, KeyState userState, boolean userStatus);
+	Key(keypad_type userKeyCode);
+	void key_update(keypad_type userKeyCode, KeyState userState, boolean userStatus);
 
 private:
 

@@ -1,9 +1,9 @@
 /*
 ||
-|| @file Keypad.cpp
-|| @version 3.1
-|| @author Mark Stanley, Alexander Brevig
-|| @contact mstanley@technologist.com, alexanderbrevig@gmail.com
+|| @file Keypad.h
+|| @version 4.0
+|| @author Mark Stanley, Alexander Brevig, , Foone Turing
+|| @contact mstanley@technologist.com, alexanderbrevig@gmail.com, fooneturing@gmail.com
 ||
 || @description
 || | This library provides a simple interface for using matrix
@@ -32,7 +32,7 @@
 #include <Keypad.h>
 
 // <<constructor>> Allows custom keymap, pin configuration, and keypad sizes.
-Keypad::Keypad(char *userKeymap, byte *row, byte *col, byte numRows, byte numCols) {
+Keypad::Keypad(keypad_type *userKeymap, byte *row, byte *col, byte numRows, byte numCols) {
 	rowPins = row;
 	columnPins = col;
 	sizeKpd.rows = numRows;
@@ -49,12 +49,12 @@ Keypad::Keypad(char *userKeymap, byte *row, byte *col, byte numRows, byte numCol
 }
 
 // Let the user define a keymap - assume the same row/column count as defined in constructor
-void Keypad::begin(char *userKeymap) {
+void Keypad::begin(keypad_type *userKeymap) {
     keymap = userKeymap;
 }
 
 // Returns a single key only. Retained for backwards compatibility.
-char Keypad::getKey() {
+keypad_type Keypad::getKey() {
 	single_key = true;
 
 	if (getKeys() && key[0].stateChanged && (key[0].kstate==PRESSED))
@@ -107,8 +107,7 @@ bool Keypad::updateList() {
 	// Delete any IDLE keys
 	for (byte i=0; i<LIST_MAX; i++) {
 		if (key[i].kstate==IDLE) {
-			key[i].kchar = NO_KEY;
-			key[i].kcode = -1;
+			key[i].kcode = NO_KEY;
 			key[i].stateChanged = false;
 		}
 	}
@@ -117,7 +116,7 @@ bool Keypad::updateList() {
 	for (byte r=0; r<sizeKpd.rows; r++) {
 		for (byte c=0; c<sizeKpd.columns; c++) {
 			boolean button = bitRead(bitMap[r],c);
-			char keyChar = keymap[r * sizeKpd.columns + c];
+			keypad_type keyCode = keymap[r * sizeKpd.columns + c];
 			int keyCode = r * sizeKpd.columns + c;
 			int idx = findInList (keyCode);
 			// Key is already on the list so set its next state.
@@ -127,8 +126,7 @@ bool Keypad::updateList() {
 			// Key is NOT on the list so add it.
 			if ((idx == -1) && button) {
 				for (byte i=0; i<LIST_MAX; i++) {
-					if (key[i].kchar==NO_KEY) {		// Find an empty slot or don't add key to list.
-						key[i].kchar = keyChar;
+					if (key[i].kcode==NO_KEY) {		// Find an empty slot or don't add key to list.
 						key[i].kcode = keyCode;
 						key[i].kstate = IDLE;		// Keys NOT on the list have an initial state of IDLE.
 						nextKeyState (i, button);
@@ -175,9 +173,9 @@ void Keypad::nextKeyState(byte idx, boolean button) {
 }
 
 // New in 2.1
-bool Keypad::isPressed(char keyChar) {
+bool Keypad::isPressed(keypad_type keyCode) {
 	for (byte i=0; i<LIST_MAX; i++) {
-		if ( key[i].kchar == keyChar ) {
+		if ( key[i].kcode == keyCode ) {
 			if ( (key[i].kstate == PRESSED) && key[i].stateChanged )
 				return true;
 		}
@@ -187,18 +185,7 @@ bool Keypad::isPressed(char keyChar) {
 
 // Search by character for a key in the list of active keys.
 // Returns -1 if not found or the index into the list of active keys.
-int Keypad::findInList (char keyChar) {
-	for (byte i=0; i<LIST_MAX; i++) {
-		if (key[i].kchar == keyChar) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-// Search by code for a key in the list of active keys.
-// Returns -1 if not found or the index into the list of active keys.
-int Keypad::findInList (int keyCode) {
+int Keypad::findInList (keypad_type keyCode) {
 	for (byte i=0; i<LIST_MAX; i++) {
 		if (key[i].kcode == keyCode) {
 			return i;
@@ -208,8 +195,8 @@ int Keypad::findInList (int keyCode) {
 }
 
 // New in 2.0
-char Keypad::waitForKey() {
-	char waitKey = NO_KEY;
+keypad_type Keypad::waitForKey() {
+	keypad_type waitKey = NO_KEY;
 	while( (waitKey = getKey()) == NO_KEY );	// Block everything while waiting for a keypress.
 	return waitKey;
 }
@@ -240,7 +227,7 @@ void Keypad::setHoldTime(uint hold) {
     holdTime = hold;
 }
 
-void Keypad::addEventListener(void (*listener)(char)){
+void Keypad::addEventListener(void (*listener)(keypad_type)){
 	keypadEventListener = listener;
 }
 
@@ -252,14 +239,14 @@ void Keypad::transitionTo(byte idx, KeyState nextState) {
 	// Calls keypadEventListener only when the first key in slot 0 changes state.
 	if (single_key)  {
 	  	if ( (keypadEventListener!=NULL) && (idx==0) )  {
-			keypadEventListener(key[0].kchar);
+			keypadEventListener(key[0].kcode);
 		}
 	}
 	// Sketch used the getKeys() function.
 	// Calls keypadEventListener on any key that changes state.
 	else {
 	  	if (keypadEventListener!=NULL)  {
-			keypadEventListener(key[idx].kchar);
+			keypadEventListener(key[idx].kcode);
 		}
 	}
 }

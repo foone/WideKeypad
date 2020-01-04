@@ -1,8 +1,9 @@
 /*
 || @file Key.cpp
-|| @version 1.0
-|| @author Mark Stanley
-|| @contact mstanley@technologist.com
+|| @file Keypad.h
+|| @version 4.0
+|| @author Mark Stanley, Alexander Brevig, , Foone Turing
+|| @contact mstanley@technologist.com, alexanderbrevig@gmail.com, fooneturing@gmail.com
 ||
 || @description
 || | Key class provides an abstract definition of a key or button
@@ -32,22 +33,21 @@
 
 // default constructor
 Key::Key() {
-	kchar = NO_KEY;
+	kcode = NO_KEY;
 	kstate = IDLE;
 	stateChanged = false;
 }
 
 // constructor
-Key::Key(char userKeyChar) {
-	kchar = userKeyChar;
-	kcode = -1;
+Key::Key(keypad_type userKeyCode) {
+	kcode = userKeyCode;
 	kstate = IDLE;
 	stateChanged = false;
 }
 
 
-void Key::key_update (char userKeyChar, KeyState userState, boolean userStatus) {
-	kchar = userKeyChar;
+void Key::key_update (keypad_type userKeyCode, KeyState userState, boolean userStatus) {
+	kcode = userKeyCode;
 	kstate = userState;
 	stateChanged = userStatus;
 }
